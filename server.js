@@ -58,3 +58,23 @@ connection.connect(function (err){
     console.log("Employee Manager");
     startprompt();
 })
+
+function viewEmployee(){
+
+}
+
+function addEmployee(){
+
+}
+
+function removeEmployee(){
+
+}
+
+function updateRoles(){
+
+}
+
+function addRoles(){
+    
+}
