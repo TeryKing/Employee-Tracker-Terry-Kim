@@ -21,30 +21,21 @@ function startprompt(){
         name:"task",
         message: "Please select the following",
         choices:[
-            "View Employee",
-            "Add Employee",
-            "Remove Employee",
+            "View",
+            "Add",
             "Update Roles",
-            "Add Roles",
             "End"
         ]
     })
     .then(function ({task}){
         switch(task){
-            case "View Employee": viewEmployee();
+            case "View": view();
             break;
 
-            case "Add Employee": addEmployee();
+            case "Add": add();
             break;
 
-            case "Remove Employee": removeEmployee();
-            break;
-
-            case "Update Roles": updateRoles();
-            break;
-
-            case "Add Roles": addRoles();
-            break;
+            case "Update": update();
 
             case "End": connection.end();
             break;
@@ -59,22 +50,26 @@ connection.connect(function (err){
     startprompt();
 })
 
-function viewEmployee(){
+function view(){
+    inquirer.prompt({
+        name: "db",
+        message: "What would you like to view?",
+        type: "list",
+        choices: ["Department","Role","Employee"]
+    }
+    ).then(function ({db}){
+        connection.query(`SELECT * FROM ${db}`, function(err,data){
+            if(err) throw err;
+            console.table(data);
+            startprompt;
+        })
+    })
+}
+
+function add(){
 
 }
 
-function addEmployee(){
+function update(){
 
-}
-
-function removeEmployee(){
-
-}
-
-function updateRoles(){
-
-}
-
-function addRoles(){
-    
 }
