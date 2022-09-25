@@ -1,3 +1,5 @@
+const { resolveSoa } = require("dns");
+const { connect } = require("http2");
 const inquirer = require("inquirer");
 require("console.table");
 const mysql = require("mysql");
@@ -137,6 +139,69 @@ function addRole(){
     })
     })
 }
+
+function addEmployee(){
+    let employees = [];
+    let employeeroles =[];
+
+    connection.query(`SELECT * FROM role`, function(err, data){
+        if(err) throw err;
+
+        for(let i=0; i<data.length;i++){
+            employeeroles.push(data[i].title);
+        }
+
+        connection.query(`SELECT * FROM employee`, function(err, data){
+            if(err) throw err;
+
+            for(let i = 0; i<data.length; i++){
+                employees.push(data[i].firstname);
+            }
+            inquirer.prompt([
+                {
+                    name: "firstname",
+                    message: "Please enter employee's first name.",
+                    type: "input"
+                },
+                {
+                    name: "lastname",
+                    message: "Please enter employee's last name.",
+                    type: "input"
+                }, 
+                {
+                    name: "roleID",
+                    message:"Please enter a role for the employee.",
+                    type: "list",
+                    choices: employeeroles,
+                },
+                {
+                    name: "manager",
+                    message: "Who is their manager?",
+                    type: "list",
+                    choices: ["none".concat(employees)]
+                }
+            ]).then(function({firstname,lastname,roleID,manager}){
+                let queryinsert = `INSERT INTO employee (firstname, lastname, roleID)`;
+                if(manager != "none"){
+                    queryinsert += `,manager) VALUES("${firstname}", "${lastname}", ${employeeroles.indexOf(roleID)},${employees.indexOf(manager)+1})`
+                }
+                else{
+                    queryinsert += `) VALUES ("${firstname}","${lastname}",${employeeroles.indexOf(roleID)})`
+                }
+                console.log(queryinsert)
+
+                connection.query(queryinsert, function(err,data){
+                    if(err) throw err;
+
+                    startprompt();
+                })
+            })
+        })
+    })
+}
+
+
+
 
 function update(){
 
