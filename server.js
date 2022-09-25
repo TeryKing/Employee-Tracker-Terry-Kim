@@ -1,6 +1,7 @@
 const inquirer = require("inquirer");
 require("console.table");
 const mysql = require("mysql");
+const { allowedNodeEnvironmentFlags } = require("process");
 
 
 
@@ -67,7 +68,74 @@ function view(){
 }
 
 function add(){
+    inquirer.prompt({
+        name: "db",
+        message: "What would you like to add?",
+        type: "list",
+        choices: ["Department","Role","Employee"]
+    }).then(function({db}){
+        switch(db){
+            case "Department": addDepart();
+            break;
 
+            case "Role": addRole();
+            break;
+
+            case "Employee": addEmployee();
+            break;
+        }
+    })
+}
+
+function addDepart(){
+    inquirer.prompt({
+        name: "name",
+        message: "Please add the name of the Department",
+        type: "input"
+    }).then(function({name}){
+        connection.query(`INSERT INTO Department (name) VALUES ("${name})`, function (err,data){
+            if(err) throw err;
+            console.log("Complete!")
+            startprompt();
+        })
+    })
+}
+
+function addRole(){
+    let departarray =[];
+
+    connection.query(`SELECT * FROM department`, function(err,data){
+        if(err) throw err;
+
+        for(let i =0; i < data.length; i++){
+            department.push(data[i].name)
+        }
+        inquirer.prompt([{
+            name: "title",
+            message: "What is the name of the role?",
+            type: "input"
+        },
+        {
+            name: "salary",
+            message: "What is their yearly Salary?",
+            type: "input"
+        },
+        {
+            name: "departmentID",
+            message: "What department would you like to assign?",
+            type: "list",
+            choices:departarray
+        }
+    ]).then(function({title, salary, departmentID}){
+        let index = departarray.indexOf(departmentID)
+
+        connection.query(`INSERT INTO role (title, salary, departmentID) VALUES ("${title}", "${salary}", ${index})`, function(err, data){
+            if(err) throw err;
+            console.log("Complete")
+            startprompt();
+        })
+    })
+    })
 }
 
 function update(){
