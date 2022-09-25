@@ -201,8 +201,23 @@ function addEmployee(){
 }
 
 
-
-
 function update(){
+    inquirer.prompt({
+        name:"update",
+        message: "What would you like to update?",
+        type:"list",
+        choices:["Role","Manager"]
+    }).then(function({update}){
+        switch(update){
+            case "Role": updateRole();
+            break;
 
+            case "Manager": updateManager;
+            break;
+        }
+    })
+}
+
+function updateRole(){
+    
 }
