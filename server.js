@@ -106,11 +106,11 @@ function addDepart(){
 function addRole(){
     let departarray =[];
 
-    connection.query(`SELECT * FROM department`, function(err,data){
+    connection.query(`SELECT * FROM Department`, function(err,data){
         if(err) throw err;
 
         for(let i =0; i < data.length; i++){
-            department.push(data[i].name)
+            Department.push(data[i].name)
         }
         inquirer.prompt([{
             name: "title",
@@ -175,15 +175,15 @@ function addEmployee(){
                     choices: employeeroles,
                 },
                 {
-                    name: "manager",
+                    name: "Manager",
                     message: "Who is their manager?",
                     type: "list",
                     choices: ["none".concat(employees)]
                 }
-            ]).then(function({firstname,lastname,roleID,manager}){
+            ]).then(function({firstname,lastname,roleID,Manager}){
                 let queryinsert = `INSERT INTO employee (firstname, lastname, roleID)`;
                 if(manager != "none"){
-                    queryinsert += `,manager) VALUES("${firstname}", "${lastname}", ${employeeroles.indexOf(roleID)},${employees.indexOf(manager)+1})`
+                    queryinsert += `,Manager) VALUES("${firstname}", "${lastname}", ${employeeroles.indexOf(roleID)},${employees.indexOf(Manager)+1})`
                 }
                 else{
                     queryinsert += `) VALUES ("${firstname}","${lastname}",${employeeroles.indexOf(roleID)})`
@@ -192,7 +192,7 @@ function addEmployee(){
 
                 connection.query(queryinsert, function(err,data){
                     if(err) throw err;
-
+                    console.table(data)
                     startprompt();
                 })
             })
