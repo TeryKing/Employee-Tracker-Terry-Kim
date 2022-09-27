@@ -1,15 +1,13 @@
-const { resolveSoa } = require("dns");
-const { connect } = require("http2");
 const inquirer = require("inquirer");
 require("console.table");
 const mysql = require("mysql");
-const { allowedNodeEnvironmentFlags } = require("process");
+
 
 
 
 const connection = mysql.createConnection({
     host:"localhost",
-    port: 3001,
+    port: 3306,
     user:"root",
     password: "",
     database: "employeeDB"
@@ -46,12 +44,8 @@ function startprompt(){
     })
 }
 
-connection.connect(function (err){
-    if(err) throw err;
-    console.log("connected as id " + connection.threadId);
-    console.log("Employee Manager");
-    startprompt();
-})
+
+startprompt();
 
 function view(){
     inquirer.prompt({
@@ -219,5 +213,82 @@ function update(){
 }
 
 function updateRole(){
-    
+    connection.query(`SELECT * FROM employee`, function(err,data){
+        if(err) throw err;
+
+        let employees = [];
+        let employeeroles = [];
+
+        for(let i =0; i<data.length; i++){
+            employees.push(data[i].firstname)
+        }
+
+        connection.query(`SELECT * FROM Role`, function(err,data){
+            if (err) throw err;
+
+            for(let i=0; i<data.length;i++){
+                employeeroles.push(data[i].title)
+            }
+
+            inquirer.prompt([
+                {
+                    name: "employeeID",
+                    message: "Please select an employee to update his/her role.",
+                    type: "list",
+                    choices: employees
+                },
+                {
+                    name: "roleID",
+                    message: "Please select new role.",
+                    type: "list",
+                    choices: employeeroles
+                }
+            ]).then(function ({employeeID, roleID}){
+                connection.query(`UPDATE employee SET roleID = ${employeeroles.indexOf(roleID)+1} WHERE id = ${employees.indexOf(employeeID)+1}`, function (err, data){
+                    if(err) throw err;
+
+                    startprompt();
+                })
+            })
+        })
+    })
+}
+
+function updateManager(){
+    connection.query(`SELECT * FROM employee`, function(err,data){
+        if(err) throw err;
+
+        let employees=[];
+
+        for(let i =0; i<data.length;i++){
+            employees.push(data[i].firstname)
+        }
+
+        inquirer.prompt([{
+            name:"employeeID",
+            message: "Please select an employee to update their manager.",
+            type: "list",
+            choices: employees
+        },
+        {
+            name: "managerID",
+            message: "Please select a manager.",
+            type: "list",
+            choices: ["none"].concat(employees)
+        }
+    ]).then(({employeeID,managerID})=>{
+        let queryinsert = ""
+        if(managerID !== "none"){
+            queryinsert = `UPDATE employee SET managerID = ${employees.indexOf(managerID)+1} WHERE id = ${employees.indexOf(employeeID)+1}`
+        }
+        else{
+            queryinsert = `UPDATE employee SET managerID = ${null} WHERE id = ${employees.indexOf(employeeID)+1}`
+        }
+
+        connection.query(queryinsert, function(err,data){
+            if(err) throw err;
+            startprompt();
+        })
+    })
+    })
 }
