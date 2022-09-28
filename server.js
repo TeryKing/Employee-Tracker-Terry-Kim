@@ -3,17 +3,23 @@ require("console.table");
 const mysql = require("mysql");
 
 
-
-
 const connection = mysql.createConnection({
     host:"localhost",
     port: 3306,
     user:"root",
-    password: "",
+    password: "Onesaint12!",
     database: "employeeDB"
 });
 
+connection.connect(function(err){
+    if(err){
+        console.error("error occurred");
+        return;
+    }
+})
 
+
+startprompt();
 
 function startprompt(){
     inquirer
@@ -45,8 +51,6 @@ function startprompt(){
 }
 
 
-startprompt();
-
 function view(){
     inquirer.prompt({
         name: "db",
@@ -57,8 +61,9 @@ function view(){
     ).then(function ({db}){
         connection.query(`SELECT * FROM ${db}`, function(err,data){
             if(err) throw err;
-            console.table(data);
-            startprompt;
+
+            console.table(data)
+            startprompt();
         })
     })
 }
@@ -89,7 +94,7 @@ function addDepart(){
         message: "Please add the name of the Department",
         type: "input"
     }).then(function({name}){
-        connection.query(`INSERT INTO Department (name) VALUES ("${name})`, function (err,data){
+        connection.query(`INSERT INTO Department (names) VALUES ("${name})`, function (err,data){
             if(err) throw err;
             console.log("Complete!")
             startprompt();
@@ -104,7 +109,7 @@ function addRole(){
         if(err) throw err;
 
         for(let i =0; i < data.length; i++){
-            Department.push(data[i].name)
+            departarray.push(data[i].name)
         }
         inquirer.prompt([{
             name: "title",
@@ -138,7 +143,7 @@ function addEmployee(){
     let employees = [];
     let employeeroles =[];
 
-    connection.query(`SELECT * FROM role`, function(err, data){
+    connection.query(`SELECT * FROM Roles`, function(err, data){
         if(err) throw err;
 
         for(let i=0; i<data.length;i++){
@@ -223,7 +228,7 @@ function updateRole(){
             employees.push(data[i].firstname)
         }
 
-        connection.query(`SELECT * FROM Role`, function(err,data){
+        connection.query(`SELECT * FROM Roles`, function(err,data){
             if (err) throw err;
 
             for(let i=0; i<data.length;i++){
