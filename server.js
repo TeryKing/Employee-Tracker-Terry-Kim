@@ -12,14 +12,12 @@ const connection = mysql.createConnection({
 });
 
 connection.connect(function(err){
-    if(err){
-        console.error("error occurred");
-        return;
-    }
+    if (err) throw err;
+
 })
-
-
 startprompt();
+
+
 
 function startprompt(){
     inquirer
