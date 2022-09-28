@@ -1,5 +1,5 @@
 USE employeeDB;
-
+-- seeds containing initial values of job roles and departments
 INSERT INTO Department (name) VALUES ("Developer");
 INSERT INTO Department (name) VALUES ("Human Resources");
 INSERT INTO Department (name) VALUES ("Engineer");

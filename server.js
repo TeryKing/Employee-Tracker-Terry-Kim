@@ -2,7 +2,7 @@ const inquirer = require("inquirer");
 require("console.table");
 const mysql = require("mysql2");
 
-
+//connection
 const connection = mysql.createConnection({
     host:"localhost",
     port: 3306,
@@ -20,7 +20,7 @@ connection.connect(function(err){
 
 
 
-
+//initial start prompt for user to decide what to do.
 function startprompt(){
     inquirer
     .prompt({
@@ -33,7 +33,7 @@ function startprompt(){
             "Update",
             "End"
         ]
-    })
+    })//switch case for View, Add, Update, and End
     .then(function ({task}){
         switch(task){
             case "View": view();
@@ -51,7 +51,7 @@ function startprompt(){
     })
 }
 
-
+//function for View which contains options for Department Roles and Employees
 function view(){
     inquirer.prompt({
         name: "table",
@@ -70,7 +70,7 @@ function view(){
         })
     })
 }
-
+//add function to add Department, Roles, and employees
 function add(){
     inquirer.prompt({
         name: "table",
@@ -90,7 +90,7 @@ function add(){
         }
     })
 }
-
+//department adding function from previous choice option.
 function addDepart(){
     inquirer.prompt({
         name: "name",
@@ -106,7 +106,7 @@ function addDepart(){
         })
     })
 }
-
+//addrole function to add specific roles or job role specifically
 function addRole(){
     let departarray =[];
 
@@ -147,7 +147,7 @@ function addRole(){
     })
     })
 }
-
+//adding employee function with a manager choice
 function addEmployee(){
     let employees = [];
     let employeeroles =[];
@@ -213,7 +213,7 @@ function addEmployee(){
     })
 }
 
-
+//update function to update either a role or manager of an employee
 function update(){
     inquirer.prompt({
         name: "update",
@@ -230,7 +230,7 @@ function update(){
         }
     })
 }
-
+//update roles function for employee to change roles
 function updateRole(){
     connection.query(`SELECT * FROM employee`, function(err,data){
         if(err){
@@ -278,7 +278,7 @@ function updateRole(){
         })
     })
 }
-
+//update manager function to update the manager for a specific employee
 function updateManager(){
     connection.query(`SELECT * FROM employee`, function(err,data){
         if(err){

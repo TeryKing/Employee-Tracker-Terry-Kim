@@ -34,7 +34,9 @@ There are 4 Functions upon starting the prompt:
 
 ## Screenshots
 
-![App Screenshot]()
+![App Screenshot](./example.JPG)
+
+Live Demonstration Video link: https://drive.google.com/file/d/1p4wfCIrSc8l2n7i_O689OOmz4kiW2x4w/view
 
 
 
