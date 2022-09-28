@@ -26,7 +26,7 @@ There are 4 Functions upon starting the prompt:
 
 -Add: to add a Department, an employee or a role
 
--Update: to update a role or the mangager of an employee
+-Update: to update a role or the manager of an employee
 
 -End: to stop the prompt
 
