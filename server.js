@@ -1,6 +1,6 @@
 const inquirer = require("inquirer");
 require("console.table");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 
 
 const connection = mysql.createConnection({
@@ -12,10 +12,12 @@ const connection = mysql.createConnection({
 });
 
 connection.connect(function(err){
-    if (err) throw err;
-
+    if (err) {
+        console.log(err)
+    };
+    startprompt();
 })
-startprompt();
+
 
 
 
@@ -28,7 +30,7 @@ function startprompt(){
         choices:[
             "View",
             "Add",
-            "Update Roles",
+            "Update",
             "End"
         ]
     })
@@ -41,9 +43,10 @@ function startprompt(){
             break;
 
             case "Update": update();
+            break;
 
             case "End": connection.end();
-            break;
+            return;
         }
     })
 }
@@ -51,14 +54,16 @@ function startprompt(){
 
 function view(){
     inquirer.prompt({
-        name: "db",
+        name: "table",
         message: "What would you like to view?",
         type: "list",
-        choices: ["Department","Role","Employee"]
+        choices: ["Department","Roles","Employee"]
     }
-    ).then(function ({db}){
-        connection.query(`SELECT * FROM ${db}`, function(err,data){
-            if(err) throw err;
+    ).then(function ({table}){
+        connection.query(`SELECT * FROM ${table}`, function(err,data){
+            if(err){
+                console.log(err);
+            };
 
             console.table(data)
             startprompt();
@@ -68,12 +73,12 @@ function view(){
 
 function add(){
     inquirer.prompt({
-        name: "db",
+        name: "table",
         message: "What would you like to add?",
         type: "list",
         choices: ["Department","Role","Employee"]
-    }).then(function({db}){
-        switch(db){
+    }).then(function({table}){
+        switch(table){
             case "Department": addDepart();
             break;
 
@@ -92,8 +97,10 @@ function addDepart(){
         message: "Please add the name of the Department",
         type: "input"
     }).then(function({name}){
-        connection.query(`INSERT INTO Department (names) VALUES ("${name})`, function (err,data){
-            if(err) throw err;
+        connection.query(`INSERT INTO Department (name) VALUES ("${name}")`, function (err,data){
+            if(err){
+                console.log(err);
+            };
             console.log("Complete!")
             startprompt();
         })
@@ -104,7 +111,9 @@ function addRole(){
     let departarray =[];
 
     connection.query(`SELECT * FROM Department`, function(err,data){
-        if(err) throw err;
+        if(err){
+            console.log(err);
+        }
 
         for(let i =0; i < data.length; i++){
             departarray.push(data[i].name)
@@ -128,8 +137,10 @@ function addRole(){
     ]).then(function({title, salary, departmentID}){
         let index = departarray.indexOf(departmentID)
 
-        connection.query(`INSERT INTO role (title, salary, departmentID) VALUES ("${title}", "${salary}", ${index})`, function(err, data){
-            if(err) throw err;
+        connection.query(`INSERT INTO Roles (title, salary, departmentID) VALUES ("${title}", "${salary}", ${index})`, function(err, data){
+            if(err){
+                console.log(err);
+            };
             console.log("Complete")
             startprompt();
         })
@@ -142,14 +153,18 @@ function addEmployee(){
     let employeeroles =[];
 
     connection.query(`SELECT * FROM Roles`, function(err, data){
-        if(err) throw err;
+        if(err){
+            console.log(err);
+        }
 
         for(let i=0; i<data.length;i++){
             employeeroles.push(data[i].title);
         }
 
         connection.query(`SELECT * FROM employee`, function(err, data){
-            if(err) throw err;
+            if(err){
+                console.log(err);
+            }
 
             for(let i = 0; i<data.length; i++){
                 employees.push(data[i].firstname);
@@ -172,24 +187,25 @@ function addEmployee(){
                     choices: employeeroles,
                 },
                 {
-                    name: "Manager",
+                    name: "managerID",
                     message: "Who is their manager?",
                     type: "list",
-                    choices: ["none".concat(employees)]
+                    choices: ["none"].concat(employees)
                 }
-            ]).then(function({firstname,lastname,roleID,Manager}){
-                let queryinsert = `INSERT INTO employee (firstname, lastname, roleID)`;
-                if(manager != "none"){
-                    queryinsert += `,Manager) VALUES("${firstname}", "${lastname}", ${employeeroles.indexOf(roleID)},${employees.indexOf(Manager)+1})`
+            ]).then(function({firstname,lastname,roleID,managerID}){
+                let queryinsert = `INSERT INTO employee (firstname, lastname, roleID`;
+                if(managerID != "none"){
+                    queryinsert += `, managerID) VALUES ("${firstname}", "${lastname}", ${employeeroles.indexOf(roleID)}, ${employees.indexOf(managerID)+1})`
                 }
                 else{
-                    queryinsert += `) VALUES ("${firstname}","${lastname}",${employeeroles.indexOf(roleID)})`
+                    queryinsert += `) VALUES ("${firstname}", "${lastname}", ${employeeroles.indexOf(roleID)+1})`
                 }
-                console.log(queryinsert)
+                console.log(queryinsert, "Complete")
 
                 connection.query(queryinsert, function(err,data){
-                    if(err) throw err;
-                    console.table(data)
+                    if(err){
+                        console.log(err);
+                    }
                     startprompt();
                 })
             })
@@ -200,16 +216,16 @@ function addEmployee(){
 
 function update(){
     inquirer.prompt({
-        name:"update",
+        name: "update",
         message: "What would you like to update?",
-        type:"list",
+        type: "list",
         choices:["Role","Manager"]
     }).then(function({update}){
         switch(update){
             case "Role": updateRole();
             break;
 
-            case "Manager": updateManager;
+            case "Manager": updateManager();
             break;
         }
     })
@@ -217,7 +233,9 @@ function update(){
 
 function updateRole(){
     connection.query(`SELECT * FROM employee`, function(err,data){
-        if(err) throw err;
+        if(err){
+            console.log(err)
+        };
 
         let employees = [];
         let employeeroles = [];
@@ -227,7 +245,9 @@ function updateRole(){
         }
 
         connection.query(`SELECT * FROM Roles`, function(err,data){
-            if (err) throw err;
+            if(err){
+                console.log(err)
+            };
 
             for(let i=0; i<data.length;i++){
                 employeeroles.push(data[i].title)
@@ -248,7 +268,9 @@ function updateRole(){
                 }
             ]).then(function ({employeeID, roleID}){
                 connection.query(`UPDATE employee SET roleID = ${employeeroles.indexOf(roleID)+1} WHERE id = ${employees.indexOf(employeeID)+1}`, function (err, data){
-                    if(err) throw err;
+                    if(err){
+                        console.log(err)
+                    };
 
                     startprompt();
                 })
@@ -259,7 +281,9 @@ function updateRole(){
 
 function updateManager(){
     connection.query(`SELECT * FROM employee`, function(err,data){
-        if(err) throw err;
+        if(err){
+            console.log(err)
+        };
 
         let employees=[];
 
@@ -289,7 +313,9 @@ function updateManager(){
         }
 
         connection.query(queryinsert, function(err,data){
-            if(err) throw err;
+            if(err){
+                console.log(err)
+            };
             startprompt();
         })
     })
