@@ -1,15 +1,18 @@
 const inquirer = require("inquirer");
 require("console.table");
 const mysql = require("mysql2");
+const express = require('express');
+const connection = require('./config/connection');
+
 
 //connection
-const connection = mysql.createConnection({
-    host:"localhost",
-    port: 3306,
-    user:"root",
-    password: "Please Enter Password here, because I dont want to show you mine",
-    database: "employeeDB"
-});
+// const connection = mysql.createConnection({
+//     host:"localhost",
+//     port: 3306,
+//     user:"root",
+//     password: "Please Enter Password here, because I dont want to show you mine",
+//     database: "employeeDB"
+// }); changed to env file
 
 connection.connect(function(err){
     if (err) {
