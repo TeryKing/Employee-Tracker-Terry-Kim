@@ -30,7 +30,9 @@ There are 4 Functions upon starting the prompt:
 
 -End: to stop the prompt
 
+## Notes
 
+The connection establishment is used with .env, so please input your own .env connection for SQL.
 
 ## Screenshots
 
